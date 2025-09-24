@@ -23,11 +23,18 @@
       height:var(--card-h);
       scroll-snap-align:start;
       position:relative;
-      border-radius:16px;
-      box-shadow:0 8px 24px rgba(0,0,0,.5);
+      border-radius:20px;
+      background:rgba(0,0,0,0.6); /* semi-transparent */
+      backdrop-filter: blur(12px); /* blur effect */
+      -webkit-backdrop-filter: blur(12px); /* Safari support */
+      box-shadow:0 12px 32px rgba(0,0,0,0.8); /* strong drop shadow */
       overflow:hidden;
-      background:#000;
       text-decoration:none;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card:hover {
+      transform: translateY(-6px) scale(1.02);
+      box-shadow:0 18px 40px rgba(0,0,0,0.95);
     }
     model-viewer { width:100%; height:100%; background:#000; }
   </style>
@@ -44,7 +51,19 @@
         auto-rotate
         loading="lazy"
         reveal="interaction"
-        crossorigin="anonymous">
+        crossorigin="anonymous"
+        exposure="1.2"
+        shadow-intensity="1"
+        shadow-softness="0.8"
+        environment-image="neutral">
+        <script type="application/json" slot="environment">
+          {
+            "directionalLights": [
+              { "color": "#ffffff", "intensity": 1.0, "x": 0, "y": 2, "z": 2 },
+              { "color": "#8888ff", "intensity": 0.6, "x": -2, "y": 1, "z": -2 }
+            ]
+          }
+        </script>
       </model-viewer>
     </a>
 
@@ -59,7 +78,19 @@
         auto-rotate
         loading="lazy"
         reveal="interaction"
-        crossorigin="anonymous">
+        crossorigin="anonymous"
+        exposure="1.2"
+        shadow-intensity="1"
+        shadow-softness="0.8"
+        environment-image="neutral">
+        <script type="application/json" slot="environment">
+          {
+            "directionalLights": [
+              { "color": "#ffffff", "intensity": 1.0, "x": 0, "y": 2, "z": 2 },
+              { "color": "#8888ff", "intensity": 0.6, "x": -2, "y": 1, "z": -2 }
+            ]
+          }
+        </script>
       </model-viewer>
     </a>
 
@@ -74,7 +105,19 @@
         auto-rotate
         loading="lazy"
         reveal="interaction"
-        crossorigin="anonymous">
+        crossorigin="anonymous"
+        exposure="1.2"
+        shadow-intensity="1"
+        shadow-softness="0.8"
+        environment-image="neutral">
+        <script type="application/json" slot="environment">
+          {
+            "directionalLights": [
+              { "color": "#ffffff", "intensity": 1.0, "x": 0, "y": 2, "z": 2 },
+              { "color": "#8888ff", "intensity": 0.6, "x": -2, "y": 1, "z": -2 }
+            ]
+          }
+        </script>
       </model-viewer>
     </a>
 
