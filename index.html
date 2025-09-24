@@ -7,68 +7,55 @@
   <style>
     :root { --card-w: 70vw; --card-h: 70vh; }
     * { box-sizing: border-box; }
-    html, body { margin:0; height:100%; background:#000; }
-    .wrap {
+    html, body { margin:0; height:100%; background:#000; color:#fff; }
+    .wrap{
       height:100%;
-      display:flex;
-      align-items:center;
-      overflow-x:auto;
-      gap:24px;
-      padding:24px;
-      scroll-snap-type:x mandatory;
-      -webkit-overflow-scrolling: touch;
+      display:flex; align-items:center;
+      overflow-x:auto; gap:24px; padding:24px;
+      scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch;
     }
-    .card {
-      flex:0 0 var(--card-w);
-      height:var(--card-h);
-      scroll-snap-align:start;
-      position:relative;
-      border-radius:20px;
-      background:rgba(0,0,0,0.6); /* semi-transparent */
-      backdrop-filter: blur(12px); /* blur effect */
-      -webkit-backdrop-filter: blur(12px); /* Safari support */
-      box-shadow:0 12px 32px rgba(0,0,0,0.8); /* strong drop shadow */
-      overflow:hidden;
-      text-decoration:none;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    .card{
+      position:relative; flex:0 0 var(--card-w); height:var(--card-h);
+      scroll-snap-align:start; border-radius:20px;
+      background:rgba(0,0,0,0.6);
+      backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+      box-shadow:0 12px 32px rgba(0,0,0,0.8);
+      overflow:hidden; transition:transform .3s, box-shadow .3s;
     }
-    .card:hover {
-      transform: translateY(-6px) scale(1.02);
-      box-shadow:0 18px 40px rgba(0,0,0,0.95);
+    .card:hover{ transform:translateY(-6px) scale(1.02); box-shadow:0 18px 40px rgba(0,0,0,0.95); }
+    model-viewer{ width:100%; height:100%; background:#000; }
+    .link{
+      position:absolute; right:14px; bottom:14px; z-index:3;
+      padding:10px 14px; border-radius:999px; text-decoration:none;
+      background:rgba(255,255,255,0.08); color:#fff; font:500 14px/1.1 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      border:1px solid rgba(255,255,255,0.15);
+      backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
     }
-    model-viewer { width:100%; height:100%; background:#000; }
+    .link:hover{ background:rgba(255,255,255,0.16); }
   </style>
 </head>
 <body>
   <div class="wrap">
 
     <!-- 1) Root model -->
-    <a class="card" href="https://studio.858.ie" target="_top" title="Open Tee 1">
+    <div class="card">
       <model-viewer
         src="myModel.gltf"
         alt="T-shirt 1"
         camera-controls
         auto-rotate
-        loading="lazy"
-        reveal="interaction"
+        loading="eager"              <!-- load immediately -->
         crossorigin="anonymous"
         exposure="1.2"
         shadow-intensity="1"
         shadow-softness="0.8"
         environment-image="neutral">
-        <script type="application/json" slot="environment">
-          {
-            "directionalLights": [
-              { "color": "#ffffff", "intensity": 1.0, "x": 0, "y": 2, "z": 2 },
-              { "color": "#8888ff", "intensity": 0.6, "x": -2, "y": 1, "z": -2 }
-            ]
-          }
-        </script>
       </model-viewer>
-    </a>
+      <a class="link" href="https://studio.858.ie" target="_top">studio.858.ie</a>
+    </div>
 
-    <!-- 2) SSD_T1 model -->
-    <a class="card" href="https://studio.858.ie" target="_top" title="Open SSD_T1">
+    <!-- 2) SSD_T1 (animated) -->
+    <div class="card">
       <model-viewer
         src="SSD_T1/SSD_T1.gltf"
         alt="SSD_T1 animated tee"
@@ -76,26 +63,18 @@
         autoplay
         animation-loop
         auto-rotate
-        loading="lazy"
-        reveal="interaction"
+        loading="lazy"               <!-- load when near viewport -->
         crossorigin="anonymous"
         exposure="1.2"
         shadow-intensity="1"
         shadow-softness="0.8"
         environment-image="neutral">
-        <script type="application/json" slot="environment">
-          {
-            "directionalLights": [
-              { "color": "#ffffff", "intensity": 1.0, "x": 0, "y": 2, "z": 2 },
-              { "color": "#8888ff", "intensity": 0.6, "x": -2, "y": 1, "z": -2 }
-            ]
-          }
-        </script>
       </model-viewer>
-    </a>
+      <a class="link" href="https://studio.858.ie" target="_top">studio.858.ie</a>
+    </div>
 
-    <!-- 3) L8_T2 model -->
-    <a class="card" href="https://studio.858.ie" target="_top" title="Open L8_T2">
+    <!-- 3) L8_T2 (animated) -->
+    <div class="card">
       <model-viewer
         src="L8_T2/L8_T2.gltf"
         alt="L8_T2 animated tee"
@@ -104,22 +83,14 @@
         animation-loop
         auto-rotate
         loading="lazy"
-        reveal="interaction"
         crossorigin="anonymous"
         exposure="1.2"
         shadow-intensity="1"
         shadow-softness="0.8"
         environment-image="neutral">
-        <script type="application/json" slot="environment">
-          {
-            "directionalLights": [
-              { "color": "#ffffff", "intensity": 1.0, "x": 0, "y": 2, "z": 2 },
-              { "color": "#8888ff", "intensity": 0.6, "x": -2, "y": 1, "z": -2 }
-            ]
-          }
-        </script>
       </model-viewer>
-    </a>
+      <a class="link" href="https://studio.858.ie" target="_top">studio.858.ie</a>
+    </div>
 
   </div>
 </body>
