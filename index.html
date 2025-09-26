@@ -15,7 +15,7 @@
       padding:0; margin:0;
       scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch;
       scrollbar-width:none;
-      scroll-behavior:smooth; /* smooth for normal scrolls */
+      scroll-behavior:smooth; /* smooth native scroll */
     }
     .wrap::-webkit-scrollbar { display:none; }
     .card{
@@ -130,25 +130,7 @@
     window.addEventListener('resize', updateThumb);
     updateThumb();
 
-    // Smooth scroll helper
-    function smoothScroll(target) {
-      const start = wrap.scrollLeft;
-      const change = target - start;
-      const duration = 500; // ms
-      let startTime = null;
-
-      function animateScroll(timestamp) {
-        if (!startTime) startTime = timestamp;
-        const progress = Math.min((timestamp - startTime) / duration, 1);
-        // Ease out cubic
-        const eased = 1 - Math.pow(1 - progress, 3);
-        wrap.scrollLeft = start + change * eased;
-        if (progress < 1) requestAnimationFrame(animateScroll);
-      }
-      requestAnimationFrame(animateScroll);
-    }
-
-    // drag to scroll (with easing when releasing)
+    // drag to scroll (continuous smooth feel)
     thumb.addEventListener('mousedown', e => { dragging = true; e.preventDefault(); });
     window.addEventListener('mouseup', () => dragging = false);
     window.addEventListener('mousemove', e => {
@@ -158,9 +140,14 @@
       y = Math.max(0, Math.min(rect.height, y));
       thumb.style.top = y + 'px';
       const ratio = y / rect.height;
-      const target = ratio * (wrap.scrollWidth - wrap.clientWidth);
-      smoothScroll(target);
+      wrap.scrollLeft = ratio * (wrap.scrollWidth - wrap.clientWidth);
     });
+
+    // Map vertical mouse scroll to horizontal scroll
+    wrap.addEventListener('wheel', e => {
+      e.preventDefault();
+      wrap.scrollLeft += e.deltaY;
+    }, { passive: false });
   </script>
 </body>
 </html>
