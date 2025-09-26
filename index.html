@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
   <style>
-    :root { --card-w: 50vw; --card-h: 100vh; } /* now full viewport height */
+    :root { --card-w: 50vw; --card-h: 100vh; }
     * { box-sizing: border-box; }
     html, body { margin:0; height:100%; background:transparent; overflow:hidden; }
     .wrap{
@@ -15,6 +15,7 @@
       padding:0; margin:0;
       scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch;
       scrollbar-width:none;
+      scroll-behavior:smooth; /* smooth for normal scrolls */
     }
     .wrap::-webkit-scrollbar { display:none; }
     .card{
@@ -69,13 +70,10 @@
       <model-viewer
         src="myModel.gltf"
         alt="T-shirt 1"
-        auto-rotate
-        rotation-per-second="60deg"
-        loading="eager"
+        auto-rotate rotation-per-second="60deg"
+        loading="eager" reveal="auto"
         crossorigin="anonymous"
-        exposure="1.2"
-        shadow-intensity="1"
-        shadow-softness="0.8"
+        exposure="1.2" shadow-intensity="1" shadow-softness="0.8"
         environment-image="neutral">
       </model-viewer>
     </a>
@@ -85,14 +83,11 @@
       <model-viewer
         src="L8_T3/L8_T3.gltf"
         alt="L8_T3 animated tee"
-        auto-rotate
-        rotation-per-second="60deg"
+        auto-rotate rotation-per-second="60deg"
         autoplay animation-loop
-        loading="lazy"
+        loading="lazy" reveal="auto"
         crossorigin="anonymous"
-        exposure="1.2"
-        shadow-intensity="1"
-        shadow-softness="0.8"
+        exposure="1.2" shadow-intensity="1" shadow-softness="0.8"
         environment-image="neutral">
       </model-viewer>
     </a>
@@ -102,14 +97,11 @@
       <model-viewer
         src="L8_T2/L8_T2.gltf"
         alt="L8_T2 animated tee"
-        auto-rotate
-        rotation-per-second="60deg"
+        auto-rotate rotation-per-second="60deg"
         autoplay animation-loop
-        loading="lazy"
+        loading="lazy" reveal="auto"
         crossorigin="anonymous"
-        exposure="1.2"
-        shadow-intensity="1"
-        shadow-softness="0.8"
+        exposure="1.2" shadow-intensity="1" shadow-softness="0.8"
         environment-image="neutral">
       </model-viewer>
     </a>
@@ -138,6 +130,25 @@
     window.addEventListener('resize', updateThumb);
     updateThumb();
 
+    // Smooth scroll helper
+    function smoothScroll(target) {
+      const start = wrap.scrollLeft;
+      const change = target - start;
+      const duration = 500; // ms
+      let startTime = null;
+
+      function animateScroll(timestamp) {
+        if (!startTime) startTime = timestamp;
+        const progress = Math.min((timestamp - startTime) / duration, 1);
+        // Ease out cubic
+        const eased = 1 - Math.pow(1 - progress, 3);
+        wrap.scrollLeft = start + change * eased;
+        if (progress < 1) requestAnimationFrame(animateScroll);
+      }
+      requestAnimationFrame(animateScroll);
+    }
+
+    // drag to scroll (with easing when releasing)
     thumb.addEventListener('mousedown', e => { dragging = true; e.preventDefault(); });
     window.addEventListener('mouseup', () => dragging = false);
     window.addEventListener('mousemove', e => {
@@ -147,7 +158,8 @@
       y = Math.max(0, Math.min(rect.height, y));
       thumb.style.top = y + 'px';
       const ratio = y / rect.height;
-      wrap.scrollLeft = ratio * (wrap.scrollWidth - wrap.clientWidth);
+      const target = ratio * (wrap.scrollWidth - wrap.clientWidth);
+      smoothScroll(target);
     });
   </script>
 </body>
