@@ -15,6 +15,7 @@
       padding:0; margin:0;
       -webkit-overflow-scrolling:touch;
       scrollbar-width:none;
+      scroll-behavior:smooth;
     }
     .wrap::-webkit-scrollbar { display:none; }
     .card{
@@ -22,6 +23,7 @@
       background:transparent;
       overflow:hidden;
       display:block; text-decoration:none; cursor:pointer;
+      scroll-snap-align:center;
     }
     model-viewer{ width:100%; height:100%; background:transparent; pointer-events:none; }
 
@@ -50,16 +52,31 @@
       transform:translate(-50%,-50%);
       cursor:pointer;
     }
+
+    /* Number navigation */
+    .nav {
+      position:fixed; bottom:60px; left:50%; transform:translateX(-50%);
+      display:flex; gap:20px;
+      font-family:system-ui, sans-serif;
+      font-size:18px; font-weight:600;
+    }
+    .nav a {
+      text-decoration:none;
+      color:#aaa;
+      transition:color .2s, text-shadow .2s;
+    }
+    .nav a.active {
+      color:#39ff14; /* electric green */
+      text-shadow:0 0 8px #39ff14, 0 0 16px #39ff14;
+    }
   </style>
 </head>
 <body>
   <div class="wrap" id="scrollWrap">
 
     <!-- 1) Root model -->
-    <a class="card" href="https://studio.858.ie" target="_top">
-      <model-viewer
-        src="myModel.gltf"
-        alt="T-shirt 1"
+    <a class="card" id="card1" href="https://studio.858.ie" target="_top">
+      <model-viewer src="myModel.gltf" alt="T-shirt 1"
         auto-rotate rotation-per-second="60deg"
         loading="eager" reveal="auto"
         crossorigin="anonymous"
@@ -69,10 +86,8 @@
     </a>
 
     <!-- 2) L8_T3 -->
-    <a class="card" href="https://studio.858.ie" target="_top">
-      <model-viewer
-        src="L8_T3/L8_T3.gltf"
-        alt="L8_T3 animated tee"
+    <a class="card" id="card2" href="https://studio.858.ie" target="_top">
+      <model-viewer src="L8_T3/L8_T3.gltf" alt="L8_T3 animated tee"
         auto-rotate rotation-per-second="60deg"
         autoplay animation-loop
         loading="lazy" reveal="auto"
@@ -83,10 +98,8 @@
     </a>
 
     <!-- 3) L8_T2 -->
-    <a class="card" href="https://studio.858.ie" target="_top">
-      <model-viewer
-        src="L8_T2/L8_T2.gltf"
-        alt="L8_T2 animated tee"
+    <a class="card" id="card3" href="https://studio.858.ie" target="_top">
+      <model-viewer src="L8_T2/L8_T2.gltf" alt="L8_T2 animated tee"
         auto-rotate rotation-per-second="60deg"
         autoplay animation-loop
         loading="lazy" reveal="auto"
@@ -97,10 +110,8 @@
     </a>
 
     <!-- 4) Root model (duplicate) -->
-    <a class="card" href="https://studio.858.ie" target="_top">
-      <model-viewer
-        src="myModel.gltf"
-        alt="T-shirt 1 duplicate"
+    <a class="card" id="card4" href="https://studio.858.ie" target="_top">
+      <model-viewer src="myModel.gltf" alt="T-shirt 1 duplicate"
         auto-rotate rotation-per-second="60deg"
         loading="lazy" reveal="auto"
         crossorigin="anonymous"
@@ -110,10 +121,8 @@
     </a>
 
     <!-- 5) L8_T3 (duplicate) -->
-    <a class="card" href="https://studio.858.ie" target="_top">
-      <model-viewer
-        src="L8_T3/L8_T3.gltf"
-        alt="L8_T3 duplicate"
+    <a class="card" id="card5" href="https://studio.858.ie" target="_top">
+      <model-viewer src="L8_T3/L8_T3.gltf" alt="L8_T3 duplicate"
         auto-rotate rotation-per-second="60deg"
         autoplay animation-loop
         loading="lazy" reveal="auto"
@@ -123,6 +132,15 @@
       </model-viewer>
     </a>
 
+  </div>
+
+  <!-- Navigation numbers -->
+  <div class="nav">
+    <a href="#card1">1</a>
+    <a href="#card2">2</a>
+    <a href="#card3">3</a>
+    <a href="#card4">4</a>
+    <a href="#card5">5</a>
   </div>
 
   <!-- Slim horizontal frosted glass scrollbar -->
@@ -134,7 +152,8 @@
     const wrap = document.getElementById('scrollWrap');
     const thumb = document.getElementById('thumb');
     const scrollbar = document.querySelector('.scrollbar');
-    let dragging = false;
+    const navLinks = document.querySelectorAll('.nav a');
+    const cards = document.querySelectorAll('.card');
 
     function updateThumb() {
       const maxScroll = wrap.scrollWidth - wrap.clientWidth;
@@ -142,11 +161,30 @@
       const trackWidth = scrollbar.clientWidth;
       thumb.style.left = scrollRatio * trackWidth + 'px';
     }
-    wrap.addEventListener('scroll', updateThumb);
+    wrap.addEventListener('scroll', () => {
+      updateThumb();
+      updateActiveLink();
+    });
     window.addEventListener('resize', updateThumb);
     updateThumb();
 
+    // nav highlighting
+    function updateActiveLink() {
+      let index = 0;
+      let minDiff = Infinity;
+      cards.forEach((card, i) => {
+        const diff = Math.abs(card.offsetLeft - wrap.scrollLeft);
+        if (diff < minDiff) {
+          minDiff = diff;
+          index = i;
+        }
+      });
+      navLinks.forEach((a, i) => a.classList.toggle('active', i === index));
+    }
+    updateActiveLink();
+
     // drag orb to scroll
+    let dragging = false;
     thumb.addEventListener('mousedown', e => { dragging = true; e.preventDefault(); });
     window.addEventListener('mouseup', () => dragging = false);
     window.addEventListener('mousemove', e => {
