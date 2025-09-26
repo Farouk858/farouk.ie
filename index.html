@@ -26,14 +26,13 @@
     }
     model-viewer{ width:100%; height:100%; background:transparent; pointer-events:none; }
 
-    /* Scrollbar line */
+    /* Scrollbar line (5px thick, always visible) */
     .scrollbar {
-      position:fixed; bottom:32px; left:50%; transform:translateX(-50%);
+      position:fixed; bottom:40px; left:50%; transform:translateX(-50%);
       width:60%; height:5px;
-      background:rgba(255,255,255,0.15);
+      background:rgba(255,255,255,0.25);
       border-radius:4px;
-      backdrop-filter:blur(6px);
-      -webkit-backdrop-filter:blur(6px);
+      z-index:10;
     }
 
     /* Orb */
@@ -49,14 +48,16 @@
                   0 6px 12px rgba(0,0,0,0.5);
       transform:translate(-50%,-50%);
       cursor:pointer;
-      transition:left .4s ease; /* smooth snapping when clicking numbers */
+      transition:left .3s ease;
+      z-index:11;
     }
 
-    /* Numbers above scrollbar */
+    /* Numbers aligned to scroll breakpoints */
     .nav {
-      position:fixed; bottom:64px; left:50%; transform:translateX(-50%);
+      position:fixed; bottom:60px; left:50%; transform:translateX(-50%);
+      width:60%; height:20px;
       display:flex; justify-content:space-between;
-      width:60%;
+      z-index:12;
       font-family:system-ui, sans-serif;
     }
     .nav a {
@@ -135,7 +136,7 @@
 
   </div>
 
-  <!-- Numbers above scrollbar -->
+  <!-- Numbers at exact breakpoints -->
   <div class="nav">
     <a href="#card1">1</a>
     <a href="#card2">2</a>
@@ -144,7 +145,7 @@
     <a href="#card5">5</a>
   </div>
 
-  <!-- Scrollbar with orb -->
+  <!-- Scrollbar line with orb -->
   <div class="scrollbar">
     <div class="thumb" id="thumb"></div>
   </div>
@@ -187,11 +188,10 @@
         e.preventDefault();
         cards[i].scrollIntoView({ behavior: "smooth", inline: "center" });
 
-        // move orb to the number position
-        const navRect = link.getBoundingClientRect();
-        const barRect = scrollbar.getBoundingClientRect();
-        const x = navRect.left + navRect.width/2 - barRect.left;
-        thumb.style.left = x + "px";
+        // position orb directly at number
+        const trackWidth = scrollbar.clientWidth;
+        const step = trackWidth / (cards.length - 1);
+        thumb.style.left = (i * step) + "px";
       });
     });
 
@@ -206,13 +206,4 @@
       x = Math.max(0, Math.min(rect.width, x));
       thumb.style.left = x + 'px';
       const ratio = x / rect.width;
-      wrap.scrollLeft = ratio * (wrap.scrollWidth - wrap.clientWidth);
-    });
-
-    // trackpad + mouse wheel
-    wrap.addEventListener('wheel', e => {
-      wrap.scrollLeft += (Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY);
-    });
-  </script>
-</body>
-</html>
+      wrap.scrollLeft =
