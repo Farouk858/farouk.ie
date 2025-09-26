@@ -98,6 +98,33 @@
       </model-viewer>
     </a>
 
+    <!-- 4) Root model (duplicate) -->
+    <a class="card" href="https://studio.858.ie" target="_top">
+      <model-viewer
+        src="myModel.gltf"
+        alt="T-shirt 1 duplicate"
+        auto-rotate rotation-per-second="60deg"
+        loading="lazy" reveal="auto"
+        crossorigin="anonymous"
+        exposure="1.2" shadow-intensity="1" shadow-softness="0.8"
+        environment-image="neutral">
+      </model-viewer>
+    </a>
+
+    <!-- 5) L8_T3 (duplicate) -->
+    <a class="card" href="https://studio.858.ie" target="_top">
+      <model-viewer
+        src="L8_T3/L8_T3.gltf"
+        alt="L8_T3 duplicate"
+        auto-rotate rotation-per-second="60deg"
+        autoplay animation-loop
+        loading="lazy" reveal="auto"
+        crossorigin="anonymous"
+        exposure="1.2" shadow-intensity="1" shadow-softness="0.8"
+        environment-image="neutral">
+      </model-viewer>
+    </a>
+
   </div>
 
   <!-- Slim vertical frosted glass scrollbar -->
@@ -144,11 +171,11 @@
       wrap.scrollLeft = ratio * (wrap.scrollWidth - wrap.clientWidth);
     });
 
-    // map vertical + horizontal wheel to horizontal scroll
+    // map trackpad + mouse wheel scroll to horizontal
     wrap.addEventListener('wheel', e => {
-      e.preventDefault();
-      wrap.scrollLeft += (Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY);
-    }, { passive: false });
+      // no preventDefault, so gestures flow naturally
+      wrap.scrollLeft += (e.deltaX || e.deltaY) * 1; // multiplier for sensitivity
+    });
   </script>
 </body>
 </html>
