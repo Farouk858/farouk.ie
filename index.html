@@ -23,28 +23,23 @@
       background:transparent;
       overflow:hidden;
       display:block; text-decoration:none; cursor:pointer;
-      scroll-snap-align:center;
     }
     model-viewer{ width:100%; height:100%; background:transparent; pointer-events:none; }
 
-    /* Horizontal frosted glass scrollbar at bottom */
+    /* Scrollbar line */
     .scrollbar {
-      position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
-      width:60%; height:40px; /* taller to hold numbers */
-      background:rgba(255,255,255,0.12);
-      border-radius:12px;
-      backdrop-filter:blur(10px);
-      -webkit-backdrop-filter:blur(10px);
-      box-shadow:0 2px 6px rgba(0,0,0,0.3);
-      display:flex; align-items:center; justify-content:space-between;
-      padding:0 16px;
-      font-family:system-ui, sans-serif;
+      position:fixed; bottom:32px; left:50%; transform:translateX(-50%);
+      width:60%; height:5px;
+      background:rgba(255,255,255,0.15);
+      border-radius:4px;
+      backdrop-filter:blur(6px);
+      -webkit-backdrop-filter:blur(6px);
     }
 
-    /* Frosted glass orb */
+    /* Orb */
     .thumb {
       position:absolute; top:50%;
-      width:28px; height:28px;
+      width:22px; height:22px;
       border-radius:50%;
       background:rgba(255,255,255,0.25);
       backdrop-filter:blur(20px);
@@ -54,14 +49,15 @@
                   0 6px 12px rgba(0,0,0,0.5);
       transform:translate(-50%,-50%);
       cursor:pointer;
+      transition:left .4s ease; /* smooth snapping when clicking numbers */
     }
 
-    /* Number navigation inside scrollbar */
+    /* Numbers above scrollbar */
     .nav {
-      position:absolute; top:50%; left:0; width:100%;
+      position:fixed; bottom:64px; left:50%; transform:translateX(-50%);
       display:flex; justify-content:space-between;
-      transform:translateY(-50%);
-      padding:0 16px;
+      width:60%;
+      font-family:system-ui, sans-serif;
     }
     .nav a {
       text-decoration:none;
@@ -71,7 +67,7 @@
       transition:color .2s, text-shadow .2s;
     }
     .nav a.active {
-      color:#39ff14; /* electric green */
+      color:#39ff14;
       text-shadow:0 0 8px #39ff14, 0 0 16px #39ff14;
     }
   </style>
@@ -139,16 +135,18 @@
 
   </div>
 
-  <!-- Slim horizontal frosted glass scrollbar with numbers -->
+  <!-- Numbers above scrollbar -->
+  <div class="nav">
+    <a href="#card1">1</a>
+    <a href="#card2">2</a>
+    <a href="#card3">3</a>
+    <a href="#card4">4</a>
+    <a href="#card5">5</a>
+  </div>
+
+  <!-- Scrollbar with orb -->
   <div class="scrollbar">
     <div class="thumb" id="thumb"></div>
-    <div class="nav">
-      <a href="#card1">1</a>
-      <a href="#card2">2</a>
-      <a href="#card3">3</a>
-      <a href="#card4">4</a>
-      <a href="#card5">5</a>
-    </div>
   </div>
 
   <script>
@@ -157,7 +155,6 @@
     const scrollbar = document.querySelector('.scrollbar');
     const navLinks = document.querySelectorAll('.nav a');
     const cards = document.querySelectorAll('.card');
-    let dragging = false;
 
     function updateThumb() {
       const maxScroll = wrap.scrollWidth - wrap.clientWidth;
@@ -165,6 +162,7 @@
       const trackWidth = scrollbar.clientWidth;
       thumb.style.left = scrollRatio * trackWidth + 'px';
     }
+
     wrap.addEventListener('scroll', () => {
       updateThumb();
       updateActiveLink();
@@ -172,22 +170,33 @@
     window.addEventListener('resize', updateThumb);
     updateThumb();
 
-    // nav highlighting
+    // nav highlighting + scroll-to
     function updateActiveLink() {
       let index = 0;
       let minDiff = Infinity;
       cards.forEach((card, i) => {
         const diff = Math.abs(card.offsetLeft - wrap.scrollLeft);
-        if (diff < minDiff) {
-          minDiff = diff;
-          index = i;
-        }
+        if (diff < minDiff) { minDiff = diff; index = i; }
       });
       navLinks.forEach((a, i) => a.classList.toggle('active', i === index));
     }
     updateActiveLink();
 
+    navLinks.forEach((link, i) => {
+      link.addEventListener('click', e => {
+        e.preventDefault();
+        cards[i].scrollIntoView({ behavior: "smooth", inline: "center" });
+
+        // move orb to the number position
+        const navRect = link.getBoundingClientRect();
+        const barRect = scrollbar.getBoundingClientRect();
+        const x = navRect.left + navRect.width/2 - barRect.left;
+        thumb.style.left = x + "px";
+      });
+    });
+
     // drag orb to scroll
+    let dragging = false;
     thumb.addEventListener('mousedown', e => { dragging = true; e.preventDefault(); });
     window.addEventListener('mouseup', () => dragging = false);
     window.addEventListener('mousemove', e => {
@@ -200,7 +209,7 @@
       wrap.scrollLeft = ratio * (wrap.scrollWidth - wrap.clientWidth);
     });
 
-    // map trackpad + mouse wheel to horizontal
+    // trackpad + mouse wheel
     wrap.addEventListener('wheel', e => {
       wrap.scrollLeft += (Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY);
     });
