@@ -27,10 +27,10 @@
     }
     model-viewer{ width:100%; height:100%; background:transparent; pointer-events:none; }
 
-    /* Slim vertical frosted glass scrollbar */
+    /* Horizontal frosted glass scrollbar at bottom */
     .scrollbar {
-      position:fixed; top:50%; left:24px; transform:translateY(-50%);
-      width:5px; height:60%;
+      position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+      width:60%; height:5px;
       background:rgba(255,255,255,0.12);
       border-radius:8px;
       backdrop-filter:blur(10px);
@@ -40,7 +40,7 @@
 
     /* Frosted glass orb */
     .thumb {
-      position:absolute; left:50%;
+      position:absolute; top:50%;
       width:28px; height:28px;
       border-radius:50%;
       background:rgba(255,255,255,0.25);
@@ -127,7 +127,7 @@
 
   </div>
 
-  <!-- Slim vertical frosted glass scrollbar -->
+  <!-- Slim horizontal frosted glass scrollbar -->
   <div class="scrollbar">
     <div class="thumb" id="thumb"></div>
   </div>
@@ -137,13 +137,13 @@
     const thumb = document.getElementById('thumb');
     const scrollbar = document.querySelector('.scrollbar');
     let dragging = false;
-    let targetY = 0; // target position for orb
-    let currentY = 0; // animated position
+    let targetX = 0; // target position for orb
+    let currentX = 0; // animated position
 
     // animate orb smoothly
     function animateThumb() {
-      currentY += (targetY - currentY) * 0.15; // easing
-      thumb.style.top = currentY + 'px';
+      currentX += (targetX - currentX) * 0.3; // reduced easing (was 0.15, now follows closer)
+      thumb.style.left = currentX + 'px';
       requestAnimationFrame(animateThumb);
     }
     animateThumb();
@@ -151,8 +151,8 @@
     function updateThumb() {
       const maxScroll = wrap.scrollWidth - wrap.clientWidth;
       const scrollRatio = wrap.scrollLeft / maxScroll;
-      const trackHeight = scrollbar.clientHeight;
-      targetY = scrollRatio * trackHeight;
+      const trackWidth = scrollbar.clientWidth;
+      targetX = scrollRatio * trackWidth;
     }
     wrap.addEventListener('scroll', updateThumb);
     window.addEventListener('resize', updateThumb);
@@ -164,17 +164,16 @@
     window.addEventListener('mousemove', e => {
       if (!dragging) return;
       const rect = scrollbar.getBoundingClientRect();
-      let y = e.clientY - rect.top;
-      y = Math.max(0, Math.min(rect.height, y));
-      targetY = y; // update target for orb
-      const ratio = y / rect.height;
+      let x = e.clientX - rect.left;
+      x = Math.max(0, Math.min(rect.width, x));
+      targetX = x; // update orb target
+      const ratio = x / rect.width;
       wrap.scrollLeft = ratio * (wrap.scrollWidth - wrap.clientWidth);
     });
 
     // map trackpad + mouse wheel scroll to horizontal
     wrap.addEventListener('wheel', e => {
-      // no preventDefault, so gestures flow naturally
-      wrap.scrollLeft += (e.deltaX || e.deltaY) * 1; // multiplier for sensitivity
+      wrap.scrollLeft += (Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY);
     });
   </script>
 </body>
