@@ -30,12 +30,15 @@
     /* Horizontal frosted glass scrollbar at bottom */
     .scrollbar {
       position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
-      width:60%; height:5px;
+      width:60%; height:40px; /* taller to hold numbers */
       background:rgba(255,255,255,0.12);
-      border-radius:8px;
+      border-radius:12px;
       backdrop-filter:blur(10px);
       -webkit-backdrop-filter:blur(10px);
       box-shadow:0 2px 6px rgba(0,0,0,0.3);
+      display:flex; align-items:center; justify-content:space-between;
+      padding:0 16px;
+      font-family:system-ui, sans-serif;
     }
 
     /* Frosted glass orb */
@@ -53,15 +56,17 @@
       cursor:pointer;
     }
 
-    /* Number navigation */
+    /* Number navigation inside scrollbar */
     .nav {
-      position:fixed; bottom:60px; left:50%; transform:translateX(-50%);
-      display:flex; gap:20px;
-      font-family:system-ui, sans-serif;
-      font-size:18px; font-weight:600;
+      position:absolute; top:50%; left:0; width:100%;
+      display:flex; justify-content:space-between;
+      transform:translateY(-50%);
+      padding:0 16px;
     }
     .nav a {
       text-decoration:none;
+      font-weight:bold;
+      font-size:16px;
       color:#aaa;
       transition:color .2s, text-shadow .2s;
     }
@@ -134,18 +139,16 @@
 
   </div>
 
-  <!-- Navigation numbers -->
-  <div class="nav">
-    <a href="#card1">1</a>
-    <a href="#card2">2</a>
-    <a href="#card3">3</a>
-    <a href="#card4">4</a>
-    <a href="#card5">5</a>
-  </div>
-
-  <!-- Slim horizontal frosted glass scrollbar -->
+  <!-- Slim horizontal frosted glass scrollbar with numbers -->
   <div class="scrollbar">
     <div class="thumb" id="thumb"></div>
+    <div class="nav">
+      <a href="#card1">1</a>
+      <a href="#card2">2</a>
+      <a href="#card3">3</a>
+      <a href="#card4">4</a>
+      <a href="#card5">5</a>
+    </div>
   </div>
 
   <script>
@@ -154,6 +157,7 @@
     const scrollbar = document.querySelector('.scrollbar');
     const navLinks = document.querySelectorAll('.nav a');
     const cards = document.querySelectorAll('.card');
+    let dragging = false;
 
     function updateThumb() {
       const maxScroll = wrap.scrollWidth - wrap.clientWidth;
@@ -184,7 +188,6 @@
     updateActiveLink();
 
     // drag orb to scroll
-    let dragging = false;
     thumb.addEventListener('mousedown', e => { dragging = true; e.preventDefault(); });
     window.addEventListener('mouseup', () => dragging = false);
     window.addEventListener('mousemove', e => {
