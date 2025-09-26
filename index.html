@@ -13,14 +13,12 @@
       display:flex; align-items:center;
       overflow-x:auto; overflow-y:hidden;
       padding:0; margin:0;
-      scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch;
+      -webkit-overflow-scrolling:touch;
       scrollbar-width:none;
-      scroll-behavior:smooth;
     }
     .wrap::-webkit-scrollbar { display:none; }
     .card{
       position:relative; flex:0 0 var(--card-w); height:var(--card-h);
-      scroll-snap-align:start;
       background:transparent;
       overflow:hidden;
       display:block; text-decoration:none; cursor:pointer;
@@ -137,22 +135,12 @@
     const thumb = document.getElementById('thumb');
     const scrollbar = document.querySelector('.scrollbar');
     let dragging = false;
-    let targetX = 0; // target position for orb
-    let currentX = 0; // animated position
-
-    // animate orb smoothly
-    function animateThumb() {
-      currentX += (targetX - currentX) * 0.3; // reduced easing (was 0.15, now follows closer)
-      thumb.style.left = currentX + 'px';
-      requestAnimationFrame(animateThumb);
-    }
-    animateThumb();
 
     function updateThumb() {
       const maxScroll = wrap.scrollWidth - wrap.clientWidth;
       const scrollRatio = wrap.scrollLeft / maxScroll;
       const trackWidth = scrollbar.clientWidth;
-      targetX = scrollRatio * trackWidth;
+      thumb.style.left = scrollRatio * trackWidth + 'px';
     }
     wrap.addEventListener('scroll', updateThumb);
     window.addEventListener('resize', updateThumb);
@@ -166,12 +154,12 @@
       const rect = scrollbar.getBoundingClientRect();
       let x = e.clientX - rect.left;
       x = Math.max(0, Math.min(rect.width, x));
-      targetX = x; // update orb target
+      thumb.style.left = x + 'px';
       const ratio = x / rect.width;
       wrap.scrollLeft = ratio * (wrap.scrollWidth - wrap.clientWidth);
     });
 
-    // map trackpad + mouse wheel scroll to horizontal
+    // map trackpad + mouse wheel to horizontal
     wrap.addEventListener('wheel', e => {
       wrap.scrollLeft += (Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY);
     });
