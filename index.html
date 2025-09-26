@@ -26,13 +26,13 @@
     }
     model-viewer{ width:100%; height:100%; background:transparent; pointer-events:none; }
 
-    /* Scrollbar line (5px thick, always visible) */
+    /* Scrollbar container */
     .scrollbar {
-      position:fixed; bottom:40px; left:50%; transform:translateX(-50%);
-      width:60%; height:5px;
-      background:rgba(255,255,255,0.25);
-      border-radius:4px;
-      z-index:10;
+      position:fixed; bottom:32px; left:50%; transform:translateX(-50%);
+      width:80vw; height:5px;
+      background:rgba(255,255,255,0.3); /* visible line */
+      border-radius:3px;
+      overflow:visible; /* allow orb + numbers */
     }
 
     /* Orb */
@@ -49,22 +49,20 @@
       transform:translate(-50%,-50%);
       cursor:pointer;
       transition:left .3s ease;
-      z-index:11;
     }
 
-    /* Numbers aligned to scroll breakpoints */
+    /* Numbers positioned along scrollbar */
     .nav {
-      position:fixed; bottom:60px; left:50%; transform:translateX(-50%);
-      width:60%; height:20px;
-      display:flex; justify-content:space-between;
-      z-index:12;
-      font-family:system-ui, sans-serif;
+      position:absolute; top:-28px; left:0; width:100%;
+      height:20px;
     }
     .nav a {
-      text-decoration:none;
+      position:absolute;
+      transform:translateX(-50%);
       font-weight:bold;
       font-size:16px;
       color:#aaa;
+      text-decoration:none;
       transition:color .2s, text-shadow .2s;
     }
     .nav a.active {
@@ -76,86 +74,59 @@
 <body>
   <div class="wrap" id="scrollWrap">
 
-    <!-- 1) Root model -->
     <a class="card" id="card1" href="https://studio.858.ie" target="_top">
-      <model-viewer src="myModel.gltf" alt="T-shirt 1"
-        auto-rotate rotation-per-second="60deg"
-        loading="eager" reveal="auto"
-        crossorigin="anonymous"
-        exposure="1.2" shadow-intensity="1" shadow-softness="0.8"
-        environment-image="neutral">
-      </model-viewer>
+      <model-viewer src="myModel.gltf" auto-rotate rotation-per-second="60deg"></model-viewer>
     </a>
 
-    <!-- 2) L8_T3 -->
     <a class="card" id="card2" href="https://studio.858.ie" target="_top">
-      <model-viewer src="L8_T3/L8_T3.gltf" alt="L8_T3 animated tee"
-        auto-rotate rotation-per-second="60deg"
-        autoplay animation-loop
-        loading="lazy" reveal="auto"
-        crossorigin="anonymous"
-        exposure="1.2" shadow-intensity="1" shadow-softness="0.8"
-        environment-image="neutral">
-      </model-viewer>
+      <model-viewer src="L8_T3/L8_T3.gltf" auto-rotate rotation-per-second="60deg" autoplay animation-loop></model-viewer>
     </a>
 
-    <!-- 3) L8_T2 -->
     <a class="card" id="card3" href="https://studio.858.ie" target="_top">
-      <model-viewer src="L8_T2/L8_T2.gltf" alt="L8_T2 animated tee"
-        auto-rotate rotation-per-second="60deg"
-        autoplay animation-loop
-        loading="lazy" reveal="auto"
-        crossorigin="anonymous"
-        exposure="1.2" shadow-intensity="1" shadow-softness="0.8"
-        environment-image="neutral">
-      </model-viewer>
+      <model-viewer src="L8_T2/L8_T2.gltf" auto-rotate rotation-per-second="60deg" autoplay animation-loop></model-viewer>
     </a>
 
-    <!-- 4) Root model (duplicate) -->
     <a class="card" id="card4" href="https://studio.858.ie" target="_top">
-      <model-viewer src="myModel.gltf" alt="T-shirt 1 duplicate"
-        auto-rotate rotation-per-second="60deg"
-        loading="lazy" reveal="auto"
-        crossorigin="anonymous"
-        exposure="1.2" shadow-intensity="1" shadow-softness="0.8"
-        environment-image="neutral">
-      </model-viewer>
+      <model-viewer src="myModel.gltf" auto-rotate rotation-per-second="60deg"></model-viewer>
     </a>
 
-    <!-- 5) L8_T3 (duplicate) -->
     <a class="card" id="card5" href="https://studio.858.ie" target="_top">
-      <model-viewer src="L8_T3/L8_T3.gltf" alt="L8_T3 duplicate"
-        auto-rotate rotation-per-second="60deg"
-        autoplay animation-loop
-        loading="lazy" reveal="auto"
-        crossorigin="anonymous"
-        exposure="1.2" shadow-intensity="1" shadow-softness="0.8"
-        environment-image="neutral">
-      </model-viewer>
+      <model-viewer src="L8_T3/L8_T3.gltf" auto-rotate rotation-per-second="60deg" autoplay animation-loop></model-viewer>
     </a>
 
   </div>
 
-  <!-- Numbers at exact breakpoints -->
-  <div class="nav">
-    <a href="#card1">1</a>
-    <a href="#card2">2</a>
-    <a href="#card3">3</a>
-    <a href="#card4">4</a>
-    <a href="#card5">5</a>
-  </div>
-
-  <!-- Scrollbar line with orb -->
-  <div class="scrollbar">
+  <!-- Scrollbar with orb + number anchors -->
+  <div class="scrollbar" id="scrollbar">
     <div class="thumb" id="thumb"></div>
+    <div class="nav" id="nav"></div>
   </div>
 
   <script>
     const wrap = document.getElementById('scrollWrap');
     const thumb = document.getElementById('thumb');
-    const scrollbar = document.querySelector('.scrollbar');
-    const navLinks = document.querySelectorAll('.nav a');
+    const scrollbar = document.getElementById('scrollbar');
+    const navContainer = document.getElementById('nav');
     const cards = document.querySelectorAll('.card');
+
+    // create numbers spaced across scrollbar
+    const navLinks = [];
+    cards.forEach((card, i) => {
+      const a = document.createElement('a');
+      a.textContent = i + 1;
+      navContainer.appendChild(a);
+      navLinks.push(a);
+    });
+
+    function positionNav() {
+      const trackWidth = scrollbar.clientWidth;
+      navLinks.forEach((a, i) => {
+        const ratio = i / (cards.length - 1);
+        a.style.left = ratio * trackWidth + "px";
+      });
+    }
+    window.addEventListener('resize', positionNav);
+    positionNav();
 
     function updateThumb() {
       const maxScroll = wrap.scrollWidth - wrap.clientWidth;
@@ -164,38 +135,29 @@
       thumb.style.left = scrollRatio * trackWidth + 'px';
     }
 
-    wrap.addEventListener('scroll', () => {
-      updateThumb();
-      updateActiveLink();
-    });
-    window.addEventListener('resize', updateThumb);
-    updateThumb();
-
-    // nav highlighting + scroll-to
     function updateActiveLink() {
-      let index = 0;
-      let minDiff = Infinity;
+      let index = 0, minDiff = Infinity;
       cards.forEach((card, i) => {
         const diff = Math.abs(card.offsetLeft - wrap.scrollLeft);
         if (diff < minDiff) { minDiff = diff; index = i; }
       });
       navLinks.forEach((a, i) => a.classList.toggle('active', i === index));
     }
-    updateActiveLink();
 
+    wrap.addEventListener('scroll', () => { updateThumb(); updateActiveLink(); });
+    updateThumb(); updateActiveLink();
+
+    // click number → scroll + orb aligns
     navLinks.forEach((link, i) => {
       link.addEventListener('click', e => {
         e.preventDefault();
-        cards[i].scrollIntoView({ behavior: "smooth", inline: "center" });
-
-        // position orb directly at number
-        const trackWidth = scrollbar.clientWidth;
-        const step = trackWidth / (cards.length - 1);
-        thumb.style.left = (i * step) + "px";
+        cards[i].scrollIntoView({ behavior:"smooth", inline:"center" });
+        navLinks.forEach(l => l.classList.remove('active'));
+        link.classList.add('active');
       });
     });
 
-    // drag orb to scroll
+    // drag orb
     let dragging = false;
     thumb.addEventListener('mousedown', e => { dragging = true; e.preventDefault(); });
     window.addEventListener('mouseup', () => dragging = false);
@@ -206,4 +168,13 @@
       x = Math.max(0, Math.min(rect.width, x));
       thumb.style.left = x + 'px';
       const ratio = x / rect.width;
-      wrap.scrollLeft =
+      wrap.scrollLeft = ratio * (wrap.scrollWidth - wrap.clientWidth);
+    });
+
+    // trackpad + wheel horizontal scroll
+    wrap.addEventListener('wheel', e => {
+      wrap.scrollLeft += (Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY);
+    });
+  </script>
+</body>
+</html>
