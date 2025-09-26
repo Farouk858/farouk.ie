@@ -8,7 +8,7 @@
     :root { --card-w: 40vw; --card-h: 100vh; }
     * { box-sizing: border-box; }
     html, body { margin:0; height:100%; background:transparent; overflow:hidden; }
-    .wrap{
+    .wrap {
       height:100%;
       display:flex; align-items:center;
       overflow-x:auto; overflow-y:hidden;
@@ -17,13 +17,16 @@
       scrollbar-width:none;
     }
     .wrap::-webkit-scrollbar { display:none; }
-    .card{
+    .card {
       position:relative; flex:0 0 var(--card-w); height:var(--card-h);
       background:transparent;
       overflow:hidden;
       display:block; text-decoration:none; cursor:pointer;
     }
-    model-viewer{ width:100%; height:100%; background:transparent; }
+    model-viewer {
+      width:100%; height:100%;
+      background:transparent;
+    }
 
     /* Horizontal frosted glass scrollbar at bottom */
     .scrollbar {
@@ -55,13 +58,13 @@
 <body>
   <div class="wrap" id="scrollWrap">
 
-    <!-- Example card -->
+    <!-- 1 -->
     <a class="card" href="https://studio.858.ie" target="_top">
       <model-viewer
         src="2_tshirt_B.glb"
         alt="T-shirt 1"
         auto-rotate rotation-per-second="60deg"
-        camera-controls
+        camera-controls disable-zoom
         interaction-prompt="none"
         loading="eager" reveal="auto"
         crossorigin="anonymous"
@@ -70,7 +73,68 @@
       </model-viewer>
     </a>
 
-    <!-- Add other cards here (same structure) -->
+    <!-- 2 -->
+    <a class="card" href="https://studio.858.ie" target="_top">
+      <model-viewer
+        src="1_tshirt_OT.glb"
+        alt="1_tshirt_OT"
+        auto-rotate rotation-per-second="60deg"
+        camera-controls disable-zoom
+        interaction-prompt="none"
+        autoplay animation-loop
+        loading="lazy" reveal="auto"
+        crossorigin="anonymous"
+        exposure="1.2" shadow-intensity="1" shadow-softness="0.8"
+        environment-image="neutral">
+      </model-viewer>
+    </a>
+
+    <!-- 3 -->
+    <a class="card" href="https://studio.858.ie" target="_top">
+      <model-viewer
+        src="1_tshirt_OT.glb"
+        alt="1_tshirt_OT duplicate"
+        auto-rotate rotation-per-second="60deg"
+        camera-controls disable-zoom
+        interaction-prompt="none"
+        autoplay animation-loop
+        loading="lazy" reveal="auto"
+        crossorigin="anonymous"
+        exposure="1.2" shadow-intensity="1" shadow-softness="0.8"
+        environment-image="neutral">
+      </model-viewer>
+    </a>
+
+    <!-- 4 -->
+    <a class="card" href="https://studio.858.ie" target="_top">
+      <model-viewer
+        src="myModel.gltf"
+        alt="T-shirt 1 duplicate"
+        auto-rotate rotation-per-second="60deg"
+        camera-controls disable-zoom
+        interaction-prompt="none"
+        loading="lazy" reveal="auto"
+        crossorigin="anonymous"
+        exposure="1.2" shadow-intensity="1" shadow-softness="0.8"
+        environment-image="neutral">
+      </model-viewer>
+    </a>
+
+    <!-- 5 -->
+    <a class="card" href="https://studio.858.ie" target="_top">
+      <model-viewer
+        src="L8_T3/L8_T3.gltf"
+        alt="L8_T3 duplicate"
+        auto-rotate rotation-per-second="60deg"
+        camera-controls disable-zoom
+        interaction-prompt="none"
+        autoplay animation-loop
+        loading="lazy" reveal="auto"
+        crossorigin="anonymous"
+        exposure="1.2" shadow-intensity="1" shadow-softness="0.8"
+        environment-image="neutral">
+      </model-viewer>
+    </a>
 
   </div>
 
@@ -113,7 +177,7 @@
       wrap.scrollLeft += (Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY);
     });
 
-    // make model clicks go to parent link
+    // clicking a model still follows link
     document.querySelectorAll('.card model-viewer').forEach(mv => {
       mv.addEventListener('click', e => {
         const parentLink = mv.closest('a');
