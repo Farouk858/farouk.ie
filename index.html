@@ -1,60 +1,73 @@
 <script>
-  const wrap = document.getElementById('scrollWrap');
-  const thumb = document.getElementById('thumb');
-  const scrollbar = document.querySelector('.scrollbar');
-  let dragging = false;
+(() => {
+  const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
 
-  // update orb position
-  function updateThumb() {
-    const maxScroll = wrap.scrollWidth - wrap.clientWidth;
-    const scrollRatio = wrap.scrollLeft / maxScroll;
-    const trackWidth = scrollbar.clientWidth;
-    thumb.style.left = scrollRatio * trackWidth + 'px';
+  function init() {
+    const wrap = document.getElementById('scrollWrap');
+    const thumb = document.getElementById('thumb');
+    const scrollbar = document.querySelector('.scrollbar');
+    if (!wrap || !thumb || !scrollbar) {
+      console.error('Missing #scrollWrap, .scrollbar, or #thumb');
+      return;
+    }
+
+    // --- ORB POSITION ---
+    const updateThumb = () => {
+      const maxScroll = Math.max(1, wrap.scrollWidth - wrap.clientWidth); // avoid /0
+      const ratio = wrap.scrollLeft / maxScroll;
+      thumb.style.left = (ratio * scrollbar.clientWidth) + 'px';
+    };
+    wrap.addEventListener('scroll', updateThumb, { passive: true });
+    window.addEventListener('resize', updateThumb);
+    updateThumb();
+
+    // --- DRAG ORB TO SCROLL ---
+    let dragging = false;
+    thumb.addEventListener('mousedown', (e) => { dragging = true; e.preventDefault(); });
+    window.addEventListener('mouseup', () => { dragging = false; });
+    window.addEventListener('mousemove', (e) => {
+      if (!dragging) return;
+      const rect = scrollbar.getBoundingClientRect();
+      const x = clamp(e.clientX - rect.left, 0, rect.width);
+      thumb.style.left = x + 'px';
+      wrap.scrollLeft = (x / rect.width) * (wrap.scrollWidth - wrap.clientWidth);
+    });
+
+    // --- MAP VERTICAL/HORIZONTAL WHEEL TO HORIZONTAL SCROLL ---
+    wrap.addEventListener('wheel', (e) => {
+      wrap.scrollLeft += (Math.abs(e.deltaX) > Math.abs(e.deltaY)) ? e.deltaX : e.deltaY;
+    }, { passive: true });
+
+    // --- MOUSE POSITION → SUBTLE ROTATION (LIMITED) ---
+    const yawRange = 45;   // ±45° left/right
+    const pitchRange = 20; // ±20° up/down
+    const models = document.querySelectorAll('model-viewer');
+
+    window.addEventListener('mousemove', (e) => {
+      const xRatio = e.clientX / window.innerWidth;   // 0..1
+      const yRatio = e.clientY / window.innerHeight;  // 0..1
+      const yaw = (xRatio - 0.5) * 2 * yawRange;      // -45..45
+      const pitch = (0.5 - yRatio) * 2 * pitchRange;  // -20..20
+      models.forEach((mv) => {
+        mv.cameraOrbit = `${yaw}deg ${pitch}deg auto`;
+      });
+    });
+
+    // --- CLICK MODEL → FOLLOW PARENT LINK ---
+    models.forEach((mv) => {
+      mv.addEventListener('click', () => {
+        const a = mv.closest('a');
+        if (a) window.open(a.href, a.target || '_self');
+      });
+    });
   }
-  wrap.addEventListener('scroll', updateThumb);
-  window.addEventListener('resize', updateThumb);
-  updateThumb();
 
-  // drag orb to scroll
-  thumb.addEventListener('mousedown', e => { dragging = true; e.preventDefault(); });
-  window.addEventListener('mouseup', () => dragging = false);
-  window.addEventListener('mousemove', e => {
-    if (!dragging) return;
-    const rect = scrollbar.getBoundingClientRect();
-    let x = e.clientX - rect.left;
-    x = Math.max(0, Math.min(rect.width, x));
-    thumb.style.left = x + 'px';
-    const ratio = x / rect.width;
-    wrap.scrollLeft = ratio * (wrap.scrollWidth - wrap.clientWidth);
-  });
-
-  // map trackpad + mouse wheel to horizontal
-  wrap.addEventListener('wheel', e => {
-    wrap.scrollLeft += (Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY);
-  });
-
-  // mouse position → subtle rotate models
-  document.addEventListener('mousemove', e => {
-    const xRatio = e.clientX / window.innerWidth;  // 0 (left) → 1 (right)
-    const yRatio = e.clientY / window.innerHeight; // 0 (top) → 1 (bottom)
-
-    // Map ratios to constrained ranges
-    const yawRange = 45;   // limit left/right to ±45°
-    const pitchRange = 20; // limit up/down to ±20°
-
-    const yaw = (xRatio - 0.5) * 2 * yawRange;    // -45 → 45
-    const pitch = (0.5 - yRatio) * 2 * pitchRange; // -20 → 20
-
-    document.querySelectorAll('model-viewer').forEach(mv => {
-      mv.cameraOrbit = `${yaw}deg ${pitch}deg auto`;
-    });
-  });
-
-  // clicking a model still follows link
-  document.querySelectorAll('.card model-viewer').forEach(mv => {
-    mv.addEventListener('click', e => {
-      const parentLink = mv.closest('a');
-      if (parentLink) window.open(parentLink.href, parentLink.target || '_self');
-    });
-  });
+  // Run after DOM is ready AND <model-viewer> is defined
+  const start = () => customElements.whenDefined('model-viewer').then(init);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start, { once: true });
+  } else {
+    start();
+  }
+})();
 </script>
