@@ -26,6 +26,7 @@
     model-viewer {
       width:100%; height:100%;
       background:transparent;
+      --poster-color: transparent;
     }
 
     /* Horizontal frosted glass scrollbar at bottom */
@@ -60,12 +61,8 @@
 
     <!-- 1 -->
     <a class="card" href="https://studio.858.ie" target="_top">
-      <model-viewer
-        src="2_tshirt_B.glb"
-        alt="T-shirt 1"
-        auto-rotate rotation-per-second="60deg"
-        camera-controls disable-zoom
-        interaction-prompt="none"
+      <model-viewer src="2_tshirt_B.glb" alt="T-shirt 1"
+        disable-zoom
         loading="eager" reveal="auto"
         crossorigin="anonymous"
         exposure="1.2" shadow-intensity="1" shadow-softness="0.8"
@@ -75,12 +72,8 @@
 
     <!-- 2 -->
     <a class="card" href="https://studio.858.ie" target="_top">
-      <model-viewer
-        src="1_tshirt_OT.glb"
-        alt="1_tshirt_OT"
-        auto-rotate rotation-per-second="60deg"
-        camera-controls disable-zoom
-        interaction-prompt="none"
+      <model-viewer src="1_tshirt_OT.glb" alt="1_tshirt_OT"
+        disable-zoom
         autoplay animation-loop
         loading="lazy" reveal="auto"
         crossorigin="anonymous"
@@ -91,12 +84,8 @@
 
     <!-- 3 -->
     <a class="card" href="https://studio.858.ie" target="_top">
-      <model-viewer
-        src="1_tshirt_OT.glb"
-        alt="1_tshirt_OT duplicate"
-        auto-rotate rotation-per-second="60deg"
-        camera-controls disable-zoom
-        interaction-prompt="none"
+      <model-viewer src="1_tshirt_OT.glb" alt="1_tshirt_OT duplicate"
+        disable-zoom
         autoplay animation-loop
         loading="lazy" reveal="auto"
         crossorigin="anonymous"
@@ -107,12 +96,8 @@
 
     <!-- 4 -->
     <a class="card" href="https://studio.858.ie" target="_top">
-      <model-viewer
-        src="myModel.gltf"
-        alt="T-shirt 1 duplicate"
-        auto-rotate rotation-per-second="60deg"
-        camera-controls disable-zoom
-        interaction-prompt="none"
+      <model-viewer src="myModel.gltf" alt="T-shirt 1 duplicate"
+        disable-zoom
         loading="lazy" reveal="auto"
         crossorigin="anonymous"
         exposure="1.2" shadow-intensity="1" shadow-softness="0.8"
@@ -122,12 +107,8 @@
 
     <!-- 5 -->
     <a class="card" href="https://studio.858.ie" target="_top">
-      <model-viewer
-        src="L8_T3/L8_T3.gltf"
-        alt="L8_T3 duplicate"
-        auto-rotate rotation-per-second="60deg"
-        camera-controls disable-zoom
-        interaction-prompt="none"
+      <model-viewer src="L8_T3/L8_T3.gltf" alt="L8_T3 duplicate"
+        disable-zoom
         autoplay animation-loop
         loading="lazy" reveal="auto"
         crossorigin="anonymous"
@@ -149,6 +130,7 @@
     const scrollbar = document.querySelector('.scrollbar');
     let dragging = false;
 
+    // update orb position
     function updateThumb() {
       const maxScroll = wrap.scrollWidth - wrap.clientWidth;
       const scrollRatio = wrap.scrollLeft / maxScroll;
@@ -175,6 +157,18 @@
     // map trackpad + mouse wheel to horizontal
     wrap.addEventListener('wheel', e => {
       wrap.scrollLeft += (Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY);
+    });
+
+    // mouse position → rotate models
+    document.addEventListener('mousemove', e => {
+      const xRatio = e.clientX / window.innerWidth;  // 0 (left) → 1 (right)
+      const yRatio = e.clientY / window.innerHeight; // 0 (top) → 1 (bottom)
+      const yaw = (xRatio - 0.5) * 180;  // horizontal rotation
+      const pitch = (0.5 - yRatio) * 60; // vertical tilt
+
+      document.querySelectorAll('model-viewer').forEach(mv => {
+        mv.cameraOrbit = `${yaw}deg ${pitch}deg auto`;
+      });
     });
 
     // clicking a model still follows link
